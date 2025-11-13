@@ -311,7 +311,7 @@ public:
         return db.getInactiveProducts();
     }
 
-    private:
+private:
     bool checkAdminPermission() const {
         if (!isLoggedIn) {
             std::cout << "请先登录！" << std::endl;
