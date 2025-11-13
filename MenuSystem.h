@@ -102,7 +102,7 @@ private:
         }
 
         std::string email = getStringInput("邮箱(可选): ");
-        std::string phone = getStringInput("电话(可选): ");
+        std::string phone = getStringInput("手机号(必填): ");  // 改为必填
 
         if (shopSystem.registerUser(username, password, "customer", email, phone)) {
             std::cout << "注册成功！是否立即登录？(y/n): ";
@@ -125,7 +125,8 @@ private:
         std::cout << "3. 查看商品详情" << std::endl;
         std::cout << "4. 购物车管理" << std::endl;
         std::cout << "5. 我的订单" << std::endl;
-        std::cout << "6. 退出登录" << std::endl;
+        std::cout << "6. 我的商品管理" << std::endl;  // 新增
+        std::cout << "7. 退出登录" << std::endl;
         std::cout << "请选择操作: ";
 
         int choice = getIntInput("");
@@ -146,6 +147,9 @@ private:
             showOrderMenu();
             break;
         case 6:
+            showMyProductManagementMenu();  // 新增
+            break;
+        case 7:
             shopSystem.logout();
             pause();
             break;
@@ -154,7 +158,121 @@ private:
             pause();
         }
     }
+    void showMyProductManagementMenu() {
+        clearScreen();
+        printHeader("我的商品管理");
 
+        std::cout << "1. 上架新商品" << std::endl;
+        std::cout << "2. 查看我的商品" << std::endl;
+        std::cout << "3. 下架商品" << std::endl;
+        std::cout << "4. 重新上架商品" << std::endl;
+        std::cout << "5. 返回" << std::endl;
+        std::cout << "请选择操作: ";
+
+        int choice = getIntInput("");
+        switch (choice) {
+        case 1:
+            addMyProduct();
+            break;
+        case 2:
+            showMyProducts();
+            break;
+        case 3:
+            deactivateMyProduct();
+            break;
+        case 4:
+            activateMyProduct();
+            break;
+        case 5:
+            return;
+        default:
+            std::cout << "无效选择！" << std::endl;
+            pause();
+        }
+    }
+    void addMyProduct() {
+        clearScreen();
+        printHeader("上架新商品");
+
+        std::string id = getStringInput("商品ID: ");
+        std::string name = getStringInput("商品名称: ");
+        std::string category = getStringInput("商品分类: ");
+        double price = getDoubleInput("价格: ");
+        int stock = getIntInput("库存数量: ");
+        std::string description = getStringInput("商品描述: ");
+
+        if (shopSystem.addProduct(id, name, category, price, stock, description)) {
+            std::cout << "商品上架成功！" << std::endl;
+        }
+        else {
+            std::cout << "商品上架失败！" << std::endl;
+        }
+        pause();
+    }
+
+    // 新增：查看我的商品
+    void showMyProducts() {
+        clearScreen();
+        printHeader("我的商品");
+
+        auto products = shopSystem.getMyProducts();
+        if (products.empty()) {
+            std::cout << "您还没有上架任何商品！" << std::endl;
+        }
+        else {
+            std::cout << "您共有 " << products.size() << " 个商品:" << std::endl;
+            for (const auto& product : products) {
+                product.displayInfo();
+            }
+        }
+        pause();
+    }
+
+    // 新增：用户下架自己的商品
+    void deactivateMyProduct() {
+        clearScreen();
+        printHeader("下架商品");
+
+        auto myProducts = shopSystem.getMyProducts();
+        if (myProducts.empty()) {
+            std::cout << "您还没有上架任何商品！" << std::endl;
+        }
+        else {
+            std::cout << "您的商品列表:" << std::endl;
+            for (const auto& product : myProducts) {
+                if (product.getIsActive()) {
+                    product.displayBriefInfo();
+                }
+            }
+
+            std::string productId = getStringInput("\n请输入要下架的商品ID: ");
+            shopSystem.deactivateMyProduct(productId);
+        }
+        pause();
+    }
+
+    // 新增：用户重新上架商品
+    void activateMyProduct() {
+        clearScreen();
+        printHeader("重新上架商品");
+
+        auto myProducts = shopSystem.getMyProducts();
+        if (myProducts.empty()) {
+            std::cout << "您还没有任何商品！" << std::endl;
+        }
+        else {
+            std::cout << "您的下架商品列表:" << std::endl;
+            for (const auto& product : myProducts) {
+                if (!product.getIsActive()) {
+                    product.displayBriefInfo();
+                }
+            }
+
+            std::string productId = getStringInput("\n请输入要重新上架的商品ID: ");
+            shopSystem.activateMyProduct(productId);
+        }
+        pause();
+    }
     // 管理员菜单
     void showAdminMenu() {
         clearScreen();

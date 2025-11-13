@@ -28,15 +28,18 @@ public:
         users.push_back(User("user1", "123456", "customer", "user1@email.com", "13900139000"));
         users.push_back(User("user2", "123456", "customer", "user2@email.com", "13900139001"));
 
-        // 初始化商品（部分商品默认下架）
-        products.push_back(Product("P001", "iPhone 15", "电子产品", 5999.00, 50, "最新款苹果手机", true));
-        products.push_back(Product("P002", "华为Mate 60", "电子产品", 4999.00, 30, "华为旗舰手机", true));
-        products.push_back(Product("P003", "牛奶", "食品", 5.50, 200, "纯牛奶250ml", true));
-        products.push_back(Product("P004", "面包", "食品", 8.00, 150, "新鲜烘焙面包", false));  // 下架商品
-        products.push_back(Product("P005", "T恤", "服装", 59.00, 100, "纯棉短袖T恤", true));
-        products.push_back(Product("P006", "旧款手机", "电子产品", 1999.00, 10, "旧款清仓", false));  // 下架商品
+        // 初始化商品，现在包含卖家信息
+        products.push_back(Product("P001", "iPhone 15", "电子产品", 5999.00, 50,
+            "最新款苹果手机", true, "user1", "13900139000"));
+        products.push_back(Product("P002", "华为Mate 60", "电子产品", 4999.00, 30,
+            "华为旗舰手机", true, "user2", "13900139001"));
+        products.push_back(Product("P003", "牛奶", "食品", 5.50, 200,
+            "纯牛奶250ml", true, "user1", "13900139000"));
+        products.push_back(Product("P004", "面包", "食品", 8.00, 150,
+            "新鲜烘焙面包", false, "user2", "13900139001"));
+        products.push_back(Product("P005", "T恤", "服装", 59.00, 100,
+            "纯棉短袖T恤", true, "user1", "13900139000"));
     }
-
     // 用户管理（原有方法保持不变）
     bool addUser(const User& user) {
         if (getUser(user.getUsername()) != nullptr) {
