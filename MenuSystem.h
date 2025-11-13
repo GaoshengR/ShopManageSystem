@@ -132,7 +132,24 @@ private:
 
         int choice = getIntInput("");
         switch (choice) {
-            // ... 其他case ...
+        case 1:
+            browseProducts();
+            break;
+        case 2:
+            searchProducts();
+            break;
+        case 3:
+            viewProductDetails();
+            break;
+        case 4:
+            showCartMenu();
+            break;
+        case 5:
+            showOrderMenu();
+            break;
+        case 6:
+            showMyProductManagementMenu();
+			break;
         case 7:
             showComplaintMenu();  // 新增
             break;
@@ -351,7 +368,15 @@ private:
 
         int choice = getIntInput("");
         switch (choice) {
-            // ... 其他case ...
+        case 1:
+            showProductManagementMenu();
+			break;
+        case 2:
+            showUserManagementMenu();
+		    break;
+        case 3:
+            showOrderManagementMenu();
+			break;
         case 4:
             showComplaintManagementMenu();  // 新增
             break;
