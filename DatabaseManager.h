@@ -7,7 +7,7 @@
 #include "User.h"
 #include "Product.h"
 #include "Order.h"
-
+#include"Complaint.h"
 /**
  * @brief 数据库管理类 - 内存数据库
  */
@@ -16,7 +16,7 @@ private:
     std::vector<User> users;
     std::vector<Product> products;
     std::vector<Order> orders;
-
+    std::vector<Complaint> complaints;
 public:
     DatabaseManager() {
         initializeSampleData();
@@ -28,15 +28,24 @@ public:
         users.push_back(User("user1", "123456", "customer", "user1@email.com", "13900139000"));
         users.push_back(User("user2", "123456", "customer", "user2@email.com", "13900139001"));
 
-        // 初始化商品（部分商品默认下架）
-        products.push_back(Product("P001", "iPhone 15", "电子产品", 5999.00, 50, "最新款苹果手机", true));
-        products.push_back(Product("P002", "华为Mate 60", "电子产品", 4999.00, 30, "华为旗舰手机", true));
-        products.push_back(Product("P003", "牛奶", "食品", 5.50, 200, "纯牛奶250ml", true));
-        products.push_back(Product("P004", "面包", "食品", 8.00, 150, "新鲜烘焙面包", false));  // 下架商品
-        products.push_back(Product("P005", "T恤", "服装", 59.00, 100, "纯棉短袖T恤", true));
-        products.push_back(Product("P006", "旧款手机", "电子产品", 1999.00, 10, "旧款清仓", false));  // 下架商品
-    }
+        // 初始化商品，现在包含卖家信息
+        products.push_back(Product("P001", "iPhone 15", "电子产品", 5999.00, 50,
+            "最新款苹果手机", true, "user1", "13900139000"));
+        products.push_back(Product("P002", "华为Mate 60", "电子产品", 4999.00, 30,
+            "华为旗舰手机", true, "user2", "13900139001"));
+        products.push_back(Product("P003", "牛奶", "食品", 5.50, 200,
+            "纯牛奶250ml", true, "user1", "13900139000"));
+        products.push_back(Product("P004", "面包", "食品", 8.00, 150,
+            "新鲜烘焙面包", false, "user2", "13900139001"));
+        products.push_back(Product("P005", "T恤", "服装", 59.00, 100,
+            "纯棉短袖T恤", true, "user1", "13900139000"));
 
+        // 初始化投诉数据
+        complaints.push_back(Complaint("P001", "iPhone 15", "user2", "质量问题",
+            "商品有划痕", "收到的iPhone屏幕有划痕，要求退货"));
+        complaints.push_back(Complaint("P003", "牛奶", "user2", "虚假宣传",
+            "牛奶过期", "牛奶生产日期已过保质期"));
+    }
     // 用户管理（原有方法保持不变）
     bool addUser(const User& user) {
         if (getUser(user.getUsername()) != nullptr) {
@@ -89,7 +98,78 @@ public:
         }
         return nullptr;
     }
+    // ==================== 投诉管理 ====================
+    bool addComplaint(const Complaint& complaint) {
+        complaints.push_back(complaint);
+        return true;
+    }
 
+    std::vector<Complaint> getAllComplaints() {
+        return complaints;
+    }
+
+    std::vector<Complaint> getComplaintsByUser(const std::string& username) {
+        std::vector<Complaint> result;
+        for (const auto& complaint : complaints) {
+            if (complaint.getComplainant() == username) {
+                result.push_back(complaint);
+            }
+        }
+        return result;
+    }
+
+    std::vector<Complaint> getComplaintsByProduct(const std::string& productId) {
+        std::vector<Complaint> result;
+        for (const auto& complaint : complaints) {
+            if (complaint.getProductId() == productId) {
+                result.push_back(complaint);
+            }
+        }
+        return result;
+    }
+
+    std::vector<Complaint> getPendingComplaints() {
+        std::vector<Complaint> result;
+        for (const auto& complaint : complaints) {
+            if (complaint.getStatus() == "pending") {
+                result.push_back(complaint);
+            }
+        }
+        return result;
+    }
+
+    bool updateComplaint(const Complaint& complaint) {
+        for (auto& comp : complaints) {
+            if (comp.getComplaintId() == complaint.getComplaintId()) {
+                comp = complaint;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    Complaint* getComplaint(const std::string& complaintId) {
+        for (auto& complaint : complaints) {
+            if (complaint.getComplaintId() == complaintId) {
+                return &complaint;
+            }
+        }
+        return nullptr;
+    }
+
+    int getTotalComplaintCount() const {
+        return complaints.size();
+    }
+
+    int getPendingComplaintCount() const {
+        int count = 0;
+        for (const auto& complaint : complaints) {
+            if (complaint.getStatus() == "pending") {
+                count++;
+            }
+        }
+        return count;
+    }
     // 获取所有商品（包括下架的）
     std::vector<Product> getAllProducts() {
         return products;

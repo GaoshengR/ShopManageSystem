@@ -102,7 +102,7 @@ private:
         }
 
         std::string email = getStringInput("邮箱(可选): ");
-        std::string phone = getStringInput("电话(可选): ");
+        std::string phone = getStringInput("手机号(必填): ");  // 改为必填
 
         if (shopSystem.registerUser(username, password, "customer", email, phone)) {
             std::cout << "注册成功！是否立即登录？(y/n): ";
@@ -125,25 +125,238 @@ private:
         std::cout << "3. 查看商品详情" << std::endl;
         std::cout << "4. 购物车管理" << std::endl;
         std::cout << "5. 我的订单" << std::endl;
-        std::cout << "6. 退出登录" << std::endl;
+        std::cout << "6. 我的商品管理" << std::endl;
+        std::cout << "7. 投诉管理" << std::endl;  // 新增
+        std::cout << "8. 退出登录" << std::endl;
+        std::cout << "请选择操作: ";
+
+        int choice = getIntInput("");
+        switch (choice) {
+            // ... 其他case ...
+        case 7:
+            showComplaintMenu();  // 新增
+            break;
+        case 8:
+            shopSystem.logout();
+            pause();
+            break;
+        default:
+            std::cout << "无效选择！" << std::endl;
+            pause();
+        }
+    }
+    void showComplaintMenu() {
+        clearScreen();
+        printHeader("投诉管理");
+
+        std::cout << "1. 提交投诉" << std::endl;
+        std::cout << "2. 查看我的投诉" << std::endl;
+        std::cout << "3. 返回" << std::endl;
         std::cout << "请选择操作: ";
 
         int choice = getIntInput("");
         switch (choice) {
         case 1:
-            browseProducts();
+            addComplaint();
             break;
         case 2:
-            searchProducts();
+            showMyComplaints();
             break;
         case 3:
-            viewProductDetails();
+            return;
+        default:
+            std::cout << "无效选择！" << std::endl;
+            pause();
+        }
+    }
+    void addComplaint() {
+        clearScreen();
+        printHeader("提交投诉");
+
+        std::string productId = getStringInput("被投诉商品ID: ");
+
+        // 显示投诉类型选项
+        std::cout << "投诉类型:" << std::endl;
+        std::cout << "1. 质量问题" << std::endl;
+        std::cout << "2. 虚假宣传" << std::endl;
+        std::cout << "3. 服务问题" << std::endl;
+        std::cout << "4. 其他" << std::endl;
+        std::cout << "请选择投诉类型: ";
+
+        int typeChoice = getIntInput("");
+        std::string complaintType;
+        switch (typeChoice) {
+        case 1: complaintType = "质量问题"; break;
+        case 2: complaintType = "虚假宣传"; break;
+        case 3: complaintType = "服务问题"; break;
+        case 4: complaintType = "其他"; break;
+        default: complaintType = "其他";
+        }
+
+        std::string title = getStringInput("投诉标题: ");
+        std::string content = getStringInput("投诉内容: ");
+
+        if (shopSystem.addComplaint(productId, complaintType, title, content)) {
+            std::cout << "投诉提交成功！" << std::endl;
+        }
+        else {
+            std::cout << "投诉提交失败！" << std::endl;
+        }
+        pause();
+    }
+
+    // 新增：查看我的投诉
+    void showMyComplaints() {
+        clearScreen();
+        printHeader("我的投诉");
+
+        auto complaints = shopSystem.getMyComplaints();
+        if (complaints.empty()) {
+            std::cout << "您还没有提交过投诉！" << std::endl;
+        }
+        else {
+            std::cout << "您共有 " << complaints.size() << " 条投诉:" << std::endl;
+            for (const auto& complaint : complaints) {
+                complaint.displayInfo();
+            }
+        }
+        pause();
+    }
+    void showMyProductManagementMenu() {
+        clearScreen();
+        printHeader("我的商品管理");
+
+        std::cout << "1. 上架新商品" << std::endl;
+        std::cout << "2. 查看我的商品" << std::endl;
+        std::cout << "3. 下架商品" << std::endl;
+        std::cout << "4. 重新上架商品" << std::endl;
+        std::cout << "5. 返回" << std::endl;
+        std::cout << "请选择操作: ";
+
+        int choice = getIntInput("");
+        switch (choice) {
+        case 1:
+            addMyProduct();
+            break;
+        case 2:
+            showMyProducts();
+            break;
+        case 3:
+            deactivateMyProduct();
             break;
         case 4:
-            showCartMenu();
+            activateMyProduct();
             break;
         case 5:
-            showOrderMenu();
+            return;
+        default:
+            std::cout << "无效选择！" << std::endl;
+            pause();
+        }
+    }
+    void addMyProduct() {
+        clearScreen();
+        printHeader("上架新商品");
+
+        std::string id = getStringInput("商品ID: ");
+        std::string name = getStringInput("商品名称: ");
+        std::string category = getStringInput("商品分类: ");
+        double price = getDoubleInput("价格: ");
+        int stock = getIntInput("库存数量: ");
+        std::string description = getStringInput("商品描述: ");
+
+        if (shopSystem.addProduct(id, name, category, price, stock, description)) {
+            std::cout << "商品上架成功！" << std::endl;
+        }
+        else {
+            std::cout << "商品上架失败！" << std::endl;
+        }
+        pause();
+    }
+
+    // 新增：查看我的商品
+    void showMyProducts() {
+        clearScreen();
+        printHeader("我的商品");
+
+        auto products = shopSystem.getMyProducts();
+        if (products.empty()) {
+            std::cout << "您还没有上架任何商品！" << std::endl;
+        }
+        else {
+            std::cout << "您共有 " << products.size() << " 个商品:" << std::endl;
+            for (const auto& product : products) {
+                product.displayInfo();
+            }
+        }
+        pause();
+    }
+
+    // 新增：用户下架自己的商品
+    void deactivateMyProduct() {
+        clearScreen();
+        printHeader("下架商品");
+
+        auto myProducts = shopSystem.getMyProducts();
+        if (myProducts.empty()) {
+            std::cout << "您还没有上架任何商品！" << std::endl;
+        }
+        else {
+            std::cout << "您的商品列表:" << std::endl;
+            for (const auto& product : myProducts) {
+                if (product.getIsActive()) {
+                    product.displayBriefInfo();
+                }
+            }
+
+            std::string productId = getStringInput("\n请输入要下架的商品ID: ");
+            shopSystem.deactivateMyProduct(productId);
+        }
+        pause();
+    }
+
+    // 新增：用户重新上架商品
+    void activateMyProduct() {
+        clearScreen();
+        printHeader("重新上架商品");
+
+        auto myProducts = shopSystem.getMyProducts();
+        if (myProducts.empty()) {
+            std::cout << "您还没有任何商品！" << std::endl;
+        }
+        else {
+            std::cout << "您的下架商品列表:" << std::endl;
+            for (const auto& product : myProducts) {
+                if (!product.getIsActive()) {
+                    product.displayBriefInfo();
+                }
+            }
+
+            std::string productId = getStringInput("\n请输入要重新上架的商品ID: ");
+            shopSystem.activateMyProduct(productId);
+        }
+        pause();
+    }
+    // 管理员菜单
+    void showAdminMenu() {
+        clearScreen();
+        printHeader("管理员菜单 - " + shopSystem.getLoginStatus());
+        std::cout << "1. 商品管理" << std::endl;
+        std::cout << "2. 用户管理" << std::endl;
+        std::cout << "3. 订单管理" << std::endl;
+        std::cout << "4. 投诉处理" << std::endl;  // 新增
+        std::cout << "5. 数据统计" << std::endl;
+        std::cout << "6. 退出登录" << std::endl;
+        std::cout << "请选择操作: ";
+
+        int choice = getIntInput("");
+        switch (choice) {
+            // ... 其他case ...
+        case 4:
+            showComplaintManagementMenu();  // 新增
+            break;
+        case 5:
+            showStatisticsMenu();
             break;
         case 6:
             shopSystem.logout();
@@ -154,42 +367,97 @@ private:
             pause();
         }
     }
-
-    // 管理员菜单
-    void showAdminMenu() {
+    void showComplaintManagementMenu() {
         clearScreen();
-        printHeader("管理员菜单 - " + shopSystem.getLoginStatus());
-        std::cout << "1. 商品管理" << std::endl;
-        std::cout << "2. 用户管理" << std::endl;
-        std::cout << "3. 订单管理" << std::endl;
-        std::cout << "4. 数据统计" << std::endl;
-        std::cout << "5. 退出登录" << std::endl;
+        printHeader("投诉处理");
+
+        std::cout << "1. 查看所有投诉" << std::endl;
+        std::cout << "2. 查看待处理投诉" << std::endl;
+        std::cout << "3. 处理投诉" << std::endl;
+        std::cout << "4. 返回" << std::endl;
         std::cout << "请选择操作: ";
 
         int choice = getIntInput("");
         switch (choice) {
         case 1:
-            showProductManagementMenu();
+            showAllComplaints();
             break;
         case 2:
-            showUserManagementMenu();
+            showPendingComplaints();
             break;
         case 3:
-            showOrderManagementMenu();
+            processComplaint();
             break;
         case 4:
-            showStatisticsMenu();
-            break;
-        case 5:
-            shopSystem.logout();
-            pause();
-            break;
+            return;
         default:
             std::cout << "无效选择！" << std::endl;
             pause();
         }
     }
+    void showAllComplaints() {
+        clearScreen();
+        printHeader("所有投诉");
 
+        auto complaints = shopSystem.getAllComplaints();
+        if (complaints.empty()) {
+            std::cout << "暂无投诉！" << std::endl;
+        }
+        else {
+            std::cout << "共有 " << complaints.size() << " 条投诉:" << std::endl;
+            for (const auto& complaint : complaints) {
+                complaint.displayInfo();
+            }
+        }
+        pause();
+    }
+
+    // 新增：查看待处理投诉
+    void showPendingComplaints() {
+        clearScreen();
+        printHeader("待处理投诉");
+
+        auto complaints = shopSystem.getPendingComplaints();
+        if (complaints.empty()) {
+            std::cout << "暂无待处理投诉！" << std::endl;
+        }
+        else {
+            std::cout << "共有 " << complaints.size() << " 条待处理投诉:" << std::endl;
+            for (const auto& complaint : complaints) {
+                complaint.displayInfo();
+            }
+        }
+        pause();
+    }
+
+    // 新增：处理投诉
+    void processComplaint() {
+        clearScreen();
+        printHeader("处理投诉");
+
+        auto pendingComplaints = shopSystem.getPendingComplaints();
+        if (pendingComplaints.empty()) {
+            std::cout << "暂无待处理投诉！" << std::endl;
+            pause();
+            return;
+        }
+
+        std::cout << "待处理投诉列表:" << std::endl;
+        for (const auto& complaint : pendingComplaints) {
+            complaint.displayBriefInfo();
+        }
+
+        std::string complaintId = getStringInput("\n请输入要处理的投诉ID: ");
+        std::string response = getStringInput("请输入回复内容: ");
+
+        if (shopSystem.processComplaint(complaintId, response)) {
+            std::cout << "投诉处理成功！" << std::endl;
+        }
+        else {
+            std::cout << "投诉处理失败！" << std::endl;
+        }
+        pause();
+    }
     // 商品浏览功能
     void browseProducts() {
         clearScreen();

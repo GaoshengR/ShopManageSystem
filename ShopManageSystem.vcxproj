@@ -130,6 +130,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Complaint.h" />
     <ClInclude Include="DatabaseManager.h" />
     <ClInclude Include="MenuSystem.h" />
     <ClInclude Include="Order.h" />

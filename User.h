@@ -1,5 +1,4 @@
-﻿#pragma once
-#ifndef USER_H
+﻿#ifndef USER_H
 #define USER_H
 
 #include <iostream>
@@ -47,13 +46,22 @@ public:
     void displayInfo() const {
         std::cout << "用户名: " << username << std::endl;
         std::cout << "用户类型: " << (isAdmin() ? "管理员" : "普通用户") << std::endl;
+        std::cout << "手机号: " << phone << std::endl;  // 手机号现在必填
         if (!email.empty()) {
             std::cout << "邮箱: " << email << std::endl;
         }
-        if (!phone.empty()) {
-            std::cout << "电话: " << phone << std::endl;
-        }
         std::cout << "------------------------" << std::endl;
+    }
+
+    // 验证手机号格式
+    bool isValidPhone() const {
+        // 简单的手机号验证：11位数字，以1开头
+        if (phone.length() != 11) return false;
+        if (phone[0] != '1') return false;
+        for (char c : phone) {
+            if (!isdigit(c)) return false;
+        }
+        return true;
     }
 
     // 序列化方法
